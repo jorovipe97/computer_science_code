@@ -1,0 +1,47 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/Mux8Way16.hdl
+
+/**
+ * 8-way 16-bit multiplexor:
+ * out = a if sel == 000
+ *       b if sel == 001
+ *       etc.
+ *       h if sel == 111
+ */
+
+CHIP Mux8Way16 {
+    IN a[16], b[16], c[16], d[16],
+       e[16], f[16], g[16], h[16],
+       sel[3];
+    OUT out[16];
+
+    PARTS:
+    // Put your code here:
+    // Final 4mux selector
+    Xor(a=sel[0], b=sel[1], out=mux4waysel1-1);
+    Xor(a=mux4waysel1-1, b=sel[2], out=mux4waysel1-2);
+    /*
+	En HDL el signo - no se interpreta como un signo menos sino como 
+	un guion, por tanto una variable puede tener dicho
+	signo ej: foo1-2, en cambio el raya piso es un operador
+	que no es valido, ej: foo1_2, es un nombre de pin no valido
+
+	otro asunto a tener en cuenta es que si tengo un pin de 3 bits
+	y quiere seleccionar los dos primeros puedo usar la siguiente sintaxis:
+	x[0..1]
+	y para seleccionar los dos ultimos podria hacer
+	x[1..2]
+	Esto es sintazis valida en HDL
+    */
+
+    // sel[0..1] es sintaxis valida?
+    Mux4Way16(a=a, b=d, c=f, d=g, sel=sel[0..1], out=mux4way16-1);
+	Mux4Way16(a=e, b=b, c=c, d=h, sel=sel[1..2], out=mux4way16-2);
+
+	Mux16(a=mux4way16-1, b=mux4way16-2, sel=mux4waysel1-2, out=out);
+
+
+
+}
