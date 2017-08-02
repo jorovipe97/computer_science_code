@@ -9,9 +9,16 @@
 
 CHIP HalfAdder {
     IN a, b;    // 1-bit inputs
-    OUT sum,    // Right bit of a + b 
-        carry;  // Left bit of a + b
+    OUT sum,    // Right bit of a + b (LSB)
+        carry;  // Left bit of a + b (MSB)
 
     PARTS:
     // Put you code here:
+    And(a=a, b=b, out=carry);
+    /*
+	This also is correct:
+	And(a=a, out=carry, b=b);
+    */
+
+    Xor(a=a, b=b, out=sum);
 }

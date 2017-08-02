@@ -1,0 +1,10 @@
+CHIP NotGreatThanZero {
+	IN
+		in[16];
+
+	OUT
+		out;
+
+	PARTS:
+	Equivalence(a=in[15], b=true, out=out);
+}

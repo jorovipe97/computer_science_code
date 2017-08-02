@@ -42,5 +42,28 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // Put you code here:
+    // Put you code here:
+    Not16(in=x, out=not16-x);
+    Not16(in=y, out=not16-y);
+    // d=1111111111111111
+    // c=0000000000000000
+    Mux4Way16(a=x, b=not16-x, c=false, d=true, sel[0]=nx, sel[1]=zx, out=opx);
+
+    Mux4Way16(a=y, b=not16-y, c=false, d=true, sel[0]=ny, sel[1]=zy, out=opy);
+
+    Add16(a=opx, b=opy, out=add);
+    And16(a=opx, b=opy, out=and);
+
+    Mux16(a=and, b=add, sel=f, out=o);
+    //Mux16(a=add, b=and, sel=f, out=o);
+
+    Not16(in=o, out=noto);
+
+    Mux16(a=o, b=noto, sel=no, out=aluout);
+
+    Equivalence16(a=aluout, b[0..15]=false, out=zr);
+    NotGreatThanZero(in=aluout, out=ng); // ng: not great than
+
+    // A | false = A, indentity property in or
+    Or16(a=aluout, b[0..15]=false, out=out);
 }
