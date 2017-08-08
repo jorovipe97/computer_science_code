@@ -10,10 +10,14 @@
  * (the loaded value will be emitted to out from the next time step onward).
  */
 
+// El addres tiene 3 bits porque log2(8)=3
+// load == 1 write
+// load == 0 read
 CHIP RAM8 {
     IN in[16], load, address[3];
     OUT out[16];
 
     PARTS:
     // Put your code here:
+    Register(in=in, load=load)
 }
