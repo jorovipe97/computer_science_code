@@ -10,10 +10,28 @@
  * (the loaded value will be emitted to out from the next time step onward).
  */
 
+// Esta es una ram de 64regx16bits=1024bits
+// Esta RAM tiene una capacidad de 128bytes (Ni siquiera es un MegaByte)
 CHIP RAM64 {
+    
     IN in[16], load, address[6];
     OUT out[16];
 
     PARTS:
     // Put your code here:
+    DMux8Way(in=load, sel=address[3..5], a=selram8-0, b=selram8-1, c=selram8-2, d=selram8-3, e=selram8-4, f=selram8-5, g=selram8-6, h=selram8-7);
+
+    // Las 8 RAM8
+    RAM8(in=in, load=selram8-0, address=address[0..2], out=ram8-0);
+    RAM8(in=in, load=selram8-1, address=address[0..2], out=ram8-1);
+    RAM8(in=in, load=selram8-2, address=address[0..2], out=ram8-2);
+    RAM8(in=in, load=selram8-3, address=address[0..2], out=ram8-3);
+    RAM8(in=in, load=selram8-4, address=address[0..2], out=ram8-4);
+    RAM8(in=in, load=selram8-5, address=address[0..2], out=ram8-5);
+    RAM8(in=in, load=selram8-6, address=address[0..2], out=ram8-6);
+    RAM8(in=in, load=selram8-7, address=address[0..2], out=ram8-7);
+
+    // Retornando la salida
+    Mux8Way16(a=ram8-0, b=ram8-1, c=ram8-2, d=ram8-3, e=ram8-4, f=ram8-5, g=ram8-6, h=ram8-7, sel=address[3..5], out=out);
+
 }

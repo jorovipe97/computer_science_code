@@ -10,10 +10,36 @@
  * (the loaded value will be emitted to out from the next time step onward).
  */
 
+  /*
+	Esta RAM debe tener 16384 registros cada uno de 16bits.
+	16384reg/4096reg = 4. quiere decir que se nesecitan 4 rams
+	de 4096 registros para hacer una RAM de 16384 registros
+
+	address: tiene 14 bits
+
+	xx yyy yyy yyy yyy
+
+	Los 2 bits mas significativos seleccionan una de las 4 rams
+	los 12 bits menos significativos seleccionan un registro de la ram
+	seleccionada.
+
+	16384reg*16bits=264144bits (264.1kb)
+ */
+
 CHIP RAM16K {
     IN in[16], load, address[14];
     OUT out[16];
 
     PARTS:
     // Put your code here:
+    DMux4Way(in=load, sel=address[12..13], a=selram-0, b=selram-1, c=selram-2, d=selram-3);
+
+	// Las 8 RAM8
+    RAM4K(in=in, load=selram-0, address=address[0..11], out=ram-0);
+    RAM4K(in=in, load=selram-1, address=address[0..11], out=ram-1);
+    RAM4K(in=in, load=selram-2, address=address[0..11], out=ram-2);
+    RAM4K(in=in, load=selram-3, address=address[0..11], out=ram-3);
+
+    // Retornando la salida
+    Mux4Way16(a=ram-0, b=ram-1, c=ram-2, d=ram-3, sel=address[12..13], out=out);
 }

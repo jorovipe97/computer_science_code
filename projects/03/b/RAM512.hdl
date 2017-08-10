@@ -10,10 +10,41 @@
  * (the loaded value will be emitted to out from the next time step onward).
  */
 
+ /*
+	Esta RAM debe tener 512 registros cada uno de 16bits.
+	512reg/64reg = 8. quiere decir que se nesecitan 8 rams
+	de 64 registros para hacer una RAM de 512 registros
+
+	address: tiene 9 bits
+
+	xxxyyyyyy
+
+	Los 3 bits mas significativos seleccionan una de las 8 rams
+	los 6 bits menos significativos seleccionan un registro de la ram
+	seleccionada.
+
+	512reg*16bits=8192bits (8.2kb)
+ */
+
 CHIP RAM512 {
     IN in[16], load, address[9];
     OUT out[16];
 
     PARTS:
     // Put your code here:
+    DMux8Way(in=load, sel=address[6..8], a=selram-0, b=selram-1, c=selram-2, d=selram-3, e=selram-4, f=selram-5, g=selram-6, h=selram-7);
+
+    // Las 8 RAM64
+    RAM64(in=in, load=selram-0, address=address[0..5], out=ram-0);
+    RAM64(in=in, load=selram-1, address=address[0..5], out=ram-1);
+    RAM64(in=in, load=selram-2, address=address[0..5], out=ram-2);
+    RAM64(in=in, load=selram-3, address=address[0..5], out=ram-3);
+    RAM64(in=in, load=selram-4, address=address[0..5], out=ram-4);
+    RAM64(in=in, load=selram-5, address=address[0..5], out=ram-5);
+    RAM64(in=in, load=selram-6, address=address[0..5], out=ram-6);
+    RAM64(in=in, load=selram-7, address=address[0..5], out=ram-7);
+
+    // Retornando la salida
+    Mux8Way16(a=ram-0, b=ram-1, c=ram-2, d=ram-3, e=ram-4, f=ram-5, g=ram-6, h=ram-7, sel=address[6..8], out=out);
+
 }
