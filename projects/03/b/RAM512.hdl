@@ -17,13 +17,13 @@
 
 	address: tiene 9 bits
 
-	xxxyyyyyy
+	xxx yyy yyy
 
 	Los 3 bits mas significativos seleccionan una de las 8 rams
 	los 6 bits menos significativos seleccionan un registro de la ram
 	seleccionada.
 
-	512reg*16bits=8192bits (8.2kb)
+	512reg*16bits=8192bits (8.2Kb)
  */
 
 CHIP RAM512 {

@@ -12,6 +12,20 @@
 
 // Esta es una ram de 64regx16bits=1024bits
 // Esta RAM tiene una capacidad de 128bytes (Ni siquiera es un MegaByte)
+/*
+Esta RAM debe tener 64 registros cada uno de 16bits.
+64reg/8reg = 8. quiere decir que se nesecitan 8 rams
+de 8 registros para hacer una RAM de 64 registros
+
+address: tiene 6 bits
+
+xxx yyy
+
+Los 3 bits mas significativos seleccionan una de las 8 rams
+los 3 bits menos significativos seleccionan un registro de la ram
+seleccionada.
+
+*/
 CHIP RAM64 {
     
     IN in[16], load, address[6];

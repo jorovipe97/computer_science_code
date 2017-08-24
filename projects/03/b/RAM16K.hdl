@@ -23,7 +23,7 @@
 	los 12 bits menos significativos seleccionan un registro de la ram
 	seleccionada.
 
-	16384reg*16bits=264144bits (264.1kb)
+	16384reg*16bits=264144bits (264.1Kb)
  */
 
 CHIP RAM16K {

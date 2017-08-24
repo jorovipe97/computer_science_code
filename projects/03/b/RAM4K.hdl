@@ -23,7 +23,7 @@
 	los 9 bits menos significativos seleccionan un registro de la ram
 	seleccionada.
 
-	4096reg*16bits=65536bits (65.5kb)
+	4096reg*16bits=65536bits (65.5Kb)
  */
 
 CHIP RAM4K {
