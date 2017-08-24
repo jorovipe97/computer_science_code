@@ -1,10 +1,10 @@
 @3012
-D=A
+D=M
 @20561
 A=A+D
-D=A
-@0
-M=D
+D=A // arr+j
+@0 // RAM[0]
+M=D // RAM[0] = arr+j
 @17
 D=A
 @0
