@@ -25,7 +25,21 @@
  * than to the address resulting from executing the current instruction. 
  */
 
-CHIP CPU {
+ /*
+ Vamos a definir un nuevo tipo de instruccion:
+ Instrucciones tipo-E:
+ E de eraser, este tipo de instrucciones borra (setea a 0) el contenido en un registro determinado
+ a continuacion se especifica la sintaxis:
+
+ 101 0000000 000 ADC
+ a: registro A
+ d: registro D
+ c: PC register
+
+
+ */
+
+CHIP CPUNewInstruction {
 
     IN  inM[16],         // M value input  (M = contents of RAM[A])
         instruction[16], // Instruction for execution
@@ -41,25 +55,40 @@ CHIP CPU {
     PARTS:
     //i xx a c1c2c3c4c5c6 d1d2d3 j1j2j3
 
-    // Is C instruction?
+    // Is an E instruction?
+    Not(in=instruction[14], out=notinstr14);
+    And(a=instruction[15], b=notinstr14, out=ande1);
+    And(a=ande1, b=instruction[13], out=isEInstruction);
+
+    // Is an C instruction?
     And(a=instruction[15], b=instruction[14], out=and1);
     And(a=and1, b=instruction[13], out=isCInstruction);
 
-    // Put your code here:
-    Mux16(a=instruction, b=aluout, sel=isCInstruction, out=val); // NOTICE
-    // i
-    Not(in=isCInstruction, out=noti);
+    // Input to A register:
+    Mux16(a=instruction, b=aluout, sel=isCInstruction, out=val1); // NOTICE
+    Mux16(a[0..15]=val1, b[0..15]=false, sel=canWriteARegister2, out=ainput);
+    // not(i)
+    Not(in=instruction[15], out=noti);
     
-    // d1
+    // Can write on A Register? d1
     Mux(a=false, b=instruction[5], sel=isCInstruction, out=saveOnA);
-    Or(a=noti, b=saveOnA, out=canWriteARegister); //NOTICE, DONE
-    ARegister(in=val, load=canWriteARegister, out=aOut, out[0..14]=addressM[0..14]);
+    Or(a=noti, b=saveOnA, out=canWriteARegister1); //NOTICE, DONE
+    And(a=instruction[2], b=isEInstruction, out=canWriteARegister2);
+    Or(a=canWriteARegister1, b=canWriteARegister2, out=canWriteARegister);
+    ARegister(in=ainput, load=canWriteARegister, out=aOut, out[0..14]=addressM[0..14]);
 
-    // sel=a
+    // Input Y to ALU
     Mux16(a=aOut, b=inM, sel=instruction[12], out=A-M);
 
-    Mux(a=false, b=instruction[4], sel=isCInstruction, out=canWriteDRegister);
-    DRegister(in=aluout, load=canWriteDRegister, out=dOut); // NOTICE
+    // Can write on D Register?
+    Mux(a=false, b=instruction[4], sel=isCInstruction, out=canWriteDRegister1);
+    And(a=isEInstruction, b=instruction[1], out=canWriteDRegister2);
+    Or(a=canWriteDRegister1, b=canWriteDRegister2, out=canWriteDRegister);
+
+    // Input to D register
+    Mux16(a=aluout, b[0..15]=false, sel=canWriteDRegister2, out=dinput);
+
+    DRegister(in=dinput, load=canWriteDRegister, out=dOut); // NOTICE
 
     // Si i==1, los c deben entrar a la ALU
     // Si i==0, debe entrar 0 a la ALU
@@ -88,17 +117,21 @@ CHIP CPU {
     Or(a=isLessOrEqualZero, b=isGreatThanZeroMux, out=JJJCondition);
     And(a=JJJCondition, b=isCInstruction, out=JJJConditionC);
 
+    // 
+    And(a=isEInstruction, b=instruction[0], out=resetPCEinstruction);
+
     Not(in=reset, out=resetNeg);
     Not(in=JJJConditionC, out=condNeg); // NOTICE, if condition is true, no increment
     Or(a=resetNeg, b=condNeg, out=canInc);
-    PC(in=aOut, reset=reset, inc=canInc, load=JJJConditionC, out[0..14]=pc);
+
+    Or(a=resetPCEinstruction, b=reset, out=restartPC);
+    PC(in=aOut, reset=restartPC, inc=canInc, load=JJJConditionC, out[0..14]=pc);
 
     And(a=instruction[3], b=isCInstruction, out=writeM);
     //Mux(a=false, b=instruction[4], sel=instruction[15], out=writeM);
 
     //CPU line 29 error
 }
-
 
 /*
 * M=D

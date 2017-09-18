@@ -14,13 +14,13 @@
  * with the computer via the keyboard.
  */
 
-CHIP Computer {
+CHIP ComputerError {
 
     IN reset;
 
     PARTS:
     // Put your code here:
-    CPU(inM=outMMemory, instruction=actualInstruction, reset=reset, outM=outMCpu, writeM=canWriteM, addressM=addressMCpu, pc=nextInstruction);
+    CPUerror2(inM=outMMemory, instruction=actualInstruction, reset=reset, outM=outMCpu, writeM=canWriteM, addressM=addressMCpu, pc=nextInstruction);
     ROM32K(address=nextInstruction, out=actualInstruction);
     Memory(in=outMCpu, load=canWriteM, address=addressMCpu, out=outMMemory);
 }

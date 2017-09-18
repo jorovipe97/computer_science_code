@@ -25,7 +25,69 @@
  * than to the address resulting from executing the current instruction. 
  */
 
-CHIP CPU {
+
+/*
+Considere que la implementación de la CPU tiene un error. Dicho error ocurre
+al ejecutar la instrucción 0000 0011 0000 0110 que está almacenada en la posición
+de memoria 16. Luego de ejecutar la instrucción el programa continúa en la posición
+de memoria 32. Indique qué valores podrían tener los registros A, D y PC justo antes
+y justo después de ejecutar la instrucción.
+*/
+
+/*
+0 00 0 001100 000 110
+Funcionamiento correcto: @774
+
+Funcionamiento obtenido:
+D;JLE
+
+Valores que podria tener A, D y PC antes de ejecutar la instruccion
+D igual a 10
+A igual a 32
+PC igual a 16
+
+Valores despues de ejecutar la instruccion
+D igual a 10
+A igual a 0
+PC igual a 32
+*/
+
+/*
+El error consiste en interpretar una A instruction como una C instruction, a continuacion codigo ASM que replica el error
+// En comentarios de cada instruccion lo que realiza con la CPU erronea
+@32
+0 00 0 000000 100 000 // Asigna al registro A el valor 32, jump condition igual a null
+0000000000100000
+
+D=A // D=32
+1 11 0 110000 010 000 // Asigna a D el valor en A, jump condition igual a null
+1110110000010000
+
+@774
+0 00 0 001100 000 110
+0000001100000110
+*/
+
+/*
+Asigna a A el valor de 774,
+como no se valida en el jump condition que la instruccion sea tipo C la CPU procede a
+realizar la condicion D;JLE (Jump if D less or equalt than zero) lo cual es falso
+para que esto sea true, se hace un swap del cable j1 y j3, es decir donde estab aocnectado
+j1 se pone j3 y viceversa, haciendo la condicion true.
+Logrando asi que salte a la instruccion 32 cuando solo debia
+asignar al registro A el valor ed 774
+*/
+
+/*
+RESUMEN DE LOS CAMBIES
+1. Se quito la comprobacion de intruccion tipo C en la seccion del circuito dedicada a las 
+condiciones JJJ
+
+2. Se hizo un swap en la seccion del circuito dedidacada a las condiciones JJJ, con el cable
+j1 (instruction[2]) y j3 (instruction[0])
+*/
+
+CHIP CPUerror2 {
 
     IN  inM[16],         // M value input  (M = contents of RAM[A])
         instruction[16], // Instruction for execution
@@ -73,20 +135,21 @@ CHIP CPU {
     //ALU(x= ,y= ,zx= ,nx= ,zy= ,ny= ,f= ,no= ,out= ,zr= ,ng= );
 
     // JJJ Condition (Jump condition)
-    Mux(a=false, b=isNotGreatThanZero, sel=instruction[2], out=isNotGreatThanZeroMux);
+    Mux(a=false, b=isNotGreatThanZero, sel=instruction[0], out=isNotGreatThanZeroMux);
     Mux(a=false, b=isZero, sel=instruction[1], out=isZeroMux);
     // si isZero == true
     // entonces isZeroMux == true, si instruction[1] == true
 
     Not(in=isNotGreatThanZero, out=isGreatThanZero);
     Not(in=isZero, out=isNotZero);
-    And(a=isNotZero, b=instruction[0], out=instr);
+    And(a=isNotZero, b=instruction[2], out=instr); // Se swap j3 y j1
     Mux(a=false, b=isGreatThanZero, sel=instr, out=isGreatThanZeroMux);
 
     // Instrucciones tipo-c deben chequear que los tres bits mas significativos sean == 1
     Or(a=isZeroMux, b=isNotGreatThanZeroMux, out=isLessOrEqualZero);
-    Or(a=isLessOrEqualZero, b=isGreatThanZeroMux, out=JJJCondition);
-    And(a=JJJCondition, b=isCInstruction, out=JJJConditionC);
+    Or(a=isLessOrEqualZero, b=isGreatThanZeroMux, out=JJJConditionC);
+    //Not(in=foo, out=JJJConditionC);
+    //And(a=JJJCondition, b=isCInstruction, out=JJJConditionC);
 
     Not(in=reset, out=resetNeg);
     Not(in=JJJConditionC, out=condNeg); // NOTICE, if condition is true, no increment

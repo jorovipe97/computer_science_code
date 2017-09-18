@@ -43,11 +43,11 @@ M=D
 			D=A // screen+i
 			@pointer // 18
 			M=D // RAM[18] = screen+i
-			@32767 // linea 23
-			D=A
-			@32767
-			D=A+D
-			D=D+1
+			//@32767 // linea 23
+			//D=A
+			//@32767
+			//D=A+D
+			D=-1
 			@pointer
 			A=M
 			M=D

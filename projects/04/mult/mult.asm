@@ -18,7 +18,7 @@ M=0
 @R1 // 1
 D=M
 @i // 17
-D=M-D // D=sum-(R1-1), this will be util on conditional
+D=M-D // D=i - RAM[R1], this will be util on conditional
 @BLOCK2
 D;JGE  // Condicion para salirse del while
 // start while
