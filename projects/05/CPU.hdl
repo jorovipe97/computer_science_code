@@ -48,9 +48,9 @@ CHIP CPU {
     // Put your code here:
     Mux16(a=instruction, b=aluout, sel=isCInstruction, out=val); // NOTICE
     // i
-    Not(in=isCInstruction, out=noti);
+    Not(in=instruction[15], out=noti);
     
-    // d1
+    // Can write on A register?
     Mux(a=false, b=instruction[5], sel=isCInstruction, out=saveOnA);
     Or(a=noti, b=saveOnA, out=canWriteARegister); //NOTICE, DONE
     ARegister(in=val, load=canWriteARegister, out=aOut, out[0..14]=addressM[0..14]);
